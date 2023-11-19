@@ -1,0 +1,18 @@
+25th/07/2023 at 1pm
+
+ 25th July 2023 at 1pm.
+
+Tuesday 25th July 2023 at 12:30pm.
+-----
+-- Response detection for only the current epoch._/
+-- Implement MEP_Classifier _/
+-- MEP Classification for the entire dataset at a go. _/
+-- Ability to stop the whole dataset MEP classification midway. [use ctrl+alt+del _/]  
+-- [NOT URGENT]Ability to select MEP classifier to be used. Ref:#jj. _/
+-- [NOT URGENT AT ALL]Ability to select MEP classifier settings,e.g,mepamplitude threshold, min_width. COuld be combined with #jj
+-- Ability to decide to detect features for this epoch or for all epochs._/
+-- Describe threshold based respons detector as this will be compared to the classifier(is it combination of presence and response width ?)._/
+
+--------------
+autoDetectStopTimes
+C:\QENSIU\TESCS\sMEP\mapping\data\H1\epochs\training\H1_s1_session1_both_c3-c4_relax_s4_smep-recruitment-c3-c4.mat

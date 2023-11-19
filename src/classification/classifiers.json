@@ -1,0 +1,13 @@
+[
+   {
+      "driver":"default",
+      "name":"Default",
+      "classname":"DefaultClassifier"
+   },
+   {
+      "driver":"uclassifier",
+      "name":"U classifier",
+      "classname":"uclassifier.UClassifier"
+   }
+
+]

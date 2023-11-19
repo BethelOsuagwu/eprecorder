@@ -1,0 +1,40 @@
+1. %% TODO
+    % 1. [DONE]Display continouse data
+    % 2. [DONE]Apply filtering only to continuous data
+    % 2.1. [DONE]merge multiple continouse dataset
+    % 2.2. [DONE]Add a button to epoch continuos data and open it in epoch lab.
+    % 3. Export continouse data to EEGLAB
+    % 4. Export epoched data to EEGLAB.
+    % 4.1. Merge multiple epoched datasets
+    % 5. [DONE]Automatic EP onset point detection
+    % 6. [DONE]Manual definition of EP start and stop points (this should be used when available instead of auto detected points)
+    % 7. [DONE]Entry of EP window for offline (i.e equivalent to the viewer EP window used online)
+    % 8. [DONE]Computation of EP characteristics - peak2peak, area and unset time. saved in features.response per epoch
+    % 9. [DONE]Computation of average and recruitment curve using data from #8
+    % 10. Determine the lowest stimulation instensity and find the
+    % associated channel: e.g we could determine lowest intensity
+    % thus:a=rand(6,12);findchangepts(a). And then find a channel with the
+    % the least RMT.
+    % 11. Normalise the response peak2peak and area using m-max.
+    % 12. Implement STUDY to allow multiple data sets to be compared with respect the the variables computed in 8# and #9. 
+    %    
+
+[CURRENT]
+2. % TODO: 
+    % [DONE @see 'Definitions' in manuscript]1. Define the criteria for detecting change points that forms the
+    % threshold for stimulation: ANS: The stimulation threshold will be
+    % defined as the intensity where recruitment curve has the first major
+    % increase. In the current case(with trials without response set to
+    % nan/zero) it is the intensity that leads to the first evoked response.
+    % 2.[DONE] Auto detect the presence of EP and mark the presence on
+    %   EPR.epochs.features.response.auto_presence:
+      2.2. [DONE]Change the EPR.epochs.features.response.presence to ...maunal_presence.
+      2.3. [DONE created a has() method instead]Create a static method eprecorder_response.getEffectivePresence() which returns maunal_presence??auto_presence.
+    % 3. [DONE]Import arbitrary continous data from matlab workspace.
+    4. Analyse patient data and present results of Stimulation threshold 
+        and spinal level for each channel and all channels together.
+    5. Convert the Single pulse RMT to equivalent threshold for continouse 
+        high frequency stimulation. The converted value should be used 
+        presenting the data to clinicians e.g see eprecorder_response_change_point.stimulusRestingMotorThreshod
+
+3: 1. Rename the package to 'Response'. 
