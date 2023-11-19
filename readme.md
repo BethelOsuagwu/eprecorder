@@ -42,7 +42,7 @@ The following software is required to run the package:
 ## Installation
 The package can be installed by copying or cloning the repository. The repository can be cloned using the following command:
 ```bash
-git clone https://github.com/evoked-response-recorder/evoked-response-recorder.git
+git clone https://github.com/BethelOsuagwu/eprecorder.git
 ```
 
 # Usage
