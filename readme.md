@@ -1,6 +1,8 @@
 # Evoked response recorder
 This package comprises different components which together allow to record,  programmatically and visually analyse evoked responses using MATLAB and Simulink.
 
+![Evoked response recorder]( ./art/screenshot.png)
+
 # Table of contents
 * [Evoked response recorder](#evoked-response-recorder)
 * [Table of contents](#table-of-contents)
