@@ -62,6 +62,7 @@ classdef LSTM
             bias=this.biases;
             steps=size(dataset,2);
             batch_size=size(dataset,1);
+            num_features=size(dataset,3);
             
             kernel_size=size(this.kernels);
             num_filters=kernel_size(end);
@@ -75,9 +76,23 @@ classdef LSTM
                 
                 % for the case when the batch size=1, squeeze will remove
                 % the batch dimension; this must be corrected here. 
-                if iscolumn(inputs)
+%                 if iscolumn(inputs)
+%                     inputs=reshape(inputs,1,[]);
+%                 end
+
+                
+                %
+                if batch_size==1
                     inputs=reshape(inputs,1,[]);
                 end
+
+                if num_features==1
+                    inputs=reshape(inputs,[],1);
+                end
+
+                % Notice that if batch_size==1 and and num_features==1 then
+                % we have inputs==a scalar and so the dimension does not
+                % matter
                 
                 %
                 [output(:,step,:),states]=this.rnnCell(inputs,states{1},states{2},this.kernels,this.recurrentKernels,bias);
@@ -112,10 +127,11 @@ classdef LSTM
         % - state: List containing 2 2D tensors each with shape (batch_size, units). 
         %          The first tensor is the output and the second tensor is the carry.
 
-            if isrow(inputs)
-                inputs=inputs'; % Temp hack for #REF-WRONG-DIM.
-            end
-            z = inputs*kernel;% TODO (#REF-WRONG-DIM) when input_dim=1 we get error here b/c inputs we receive has shape (1,batch_size) instead of (batch_size,1).
+%             if isrow(inputs)
+%                 inputs=inputs'; % Temp hack for #REF-WRONG-DIM.
+%             end
+
+            z = inputs*kernel;% TODO [RESOLVED] (#REF-WRONG-DIM) when input_dim=1 we get error here b/c inputs we receive has shape (1,batch_size) instead of (batch_size,1).
 
             z = z + prev_state * recurrent_kernel;
             z = z + bias;

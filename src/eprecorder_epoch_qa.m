@@ -373,5 +373,17 @@ classdef eprecorder_epoch_qa
 
             reject=~~reject;
         end
+
+        function EPR1=merge(EPR1,EPR2)
+            % Merge the quality assurance of the given two datasets.
+            % [INPUT]
+            % EPR1 struct: The target dataset, and source 1.
+            % EPR2 struct: The dataset source 2.
+            % [OUTPUT]
+            % EPR1 struct: The First input dataset with updated quality assurance.
+        
+            EPR1.epochs.qa.auto_rejects=[EPR1.epochs.qa.auto_rejects , EPR2.epochs.qa.auto_rejects];
+            EPR1.epochs.qa.manual_rejects= [EPR1.epochs.qa.manual_rejects , EPR2.epochs.qa.manual_rejects];
+        end
     end
 end

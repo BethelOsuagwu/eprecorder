@@ -105,7 +105,13 @@ classdef eprecorder_recruitment_curve < handle
                 title(sprintf('Channel %g: %s',this.chanNums(n),EPR.channelNames{this.chanNums(n)}) );
                 ylabel([this.feature, ' (', this.getFeatureUnit(EPR,this.chanNums(n)),')']);
                 xlabel('Stimulus code');
+
+                ylim(ax,[0,inf]);% make each axis have its own y-limit
+                % ylim(ax,[0,max(avgs(:))]);% Uncomment to make all axis have the same y-limit
+                xlim(ax,[min(this.stimulusCodes),max(this.stimulusCodes)]);% Make all axis have the same x-limit
+                box off
             end
+            
             legend();
         end
     end
@@ -156,7 +162,7 @@ classdef eprecorder_recruitment_curve < handle
                 % never been processes check if it is one we can do
                 % automatically:
                 if all(isnan(norms)) && strcmp(this.normalisationType,eprecorder_response_norm.TYPE_RMT_PEAK2PEAK)
-                    warning('Perming automatic normalisation using default values for eprecorder_response_motor_threshold()');
+                    warning('Performing automatic normalisation using default values for eprecorder_response_motor_threshold()');
                     mt=eprecorder_response_motor_threshold();
                     EPR_temp=mt.detectRMT(EPR);
                     normaliser=eprecorder_response_norm(this.normalisationType,EPR_temp);

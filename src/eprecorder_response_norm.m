@@ -6,8 +6,8 @@ classdef eprecorder_response_norm
         % Types of normalisation
         TYPE_MVC_RMS='mvc_rms';% The max rms of maximunm voluntary contraction.
         TYPE_MAX_RESPONSE_PEAK2PEAK='max_response_peak2peak';% Average of max responses e.g max response from peripheral stim.
-        TYPE_RMT_PEAK2PEAK='rmt_peak2peak';% The peak to at RMT.
-        TYPE_STIM_INTENSITY='stim_intensity';% The stimulus intensity used to apply each deliver each response.
+        TYPE_RMT_PEAK2PEAK='rmt_peak2peak';% The peak at RMT.
+        TYPE_STIM_INTENSITY='stim_intensity';% The stimulus intensity used to apply each response.
     end
 
     properties(SetAccess=protected)   
@@ -173,6 +173,7 @@ classdef eprecorder_response_norm
             %           definition of corresponding 'type' in class
             %           properties. Each entry is for corresponding
             %           channel's RMT peak2peak. Dimension is [nchannels x 1].
+ 
      
             if nargin<2
                 force=false;
@@ -191,6 +192,8 @@ classdef eprecorder_response_norm
             EPR.epochs.features.response.normalisation.mvc_rms=v;
             EPR.epochs.features.response.normalisation.max_response_peak2peak=v;
             EPR.epochs.features.response.normalisation.rmt_peak2peak=v;
+
+
                         
         end
         

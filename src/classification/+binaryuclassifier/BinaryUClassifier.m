@@ -1,34 +1,31 @@
-classdef UClassifier < mepclassifier.ClassifierContract
+classdef BinaryUClassifier < mepclassifier.ClassifierContract
     %Implements a classifier
     
     properties(Access=protected)
-
+        
         driver;
-        inputShape=[40,1];
+        inputShape=[50,1];
     end
     
 
     methods
-        function this = UClassifier(driver)
+        function this = BinaryUClassifier(driver)
             %Construct an instance of this class
             % [INPUTS]
             % driver string: Unique identifier of the classifier
             
             % load the model
-            %addpath './uclassifier'
-            %c=load('./uclassifier/uclassifier.mat');
-            c=load('uclassifier/uclassifier.mat');
+            c=load('binaryuclassifier/binaryuclassifier.mat');
             this.layers=c.layers;
             this.sampleFreq=c.sample_freq;
             this.sanityTestInputs=c.sanity_test_inputs;
             this.sanityTestOutputs=c.sanity_test_outputs;
-
-
-            this.inputShape=c.input_shape(2:3);
-
-            this.name='U MEP classifier';
+            this.name='Binary U MEP classifier';
 
             this.driver=driver;
+
+            this.outputCols=1;
+            this.epOutputColIdx=1;
         end
         
         function output = predict(this,dataset,sampleFreq)   

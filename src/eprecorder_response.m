@@ -1,4 +1,4 @@
-classdef eprecorder_response
+classdef eprecorder_response < handle
     % EP response
     %   Manipulate evoked potential response features.
     
@@ -52,7 +52,7 @@ classdef eprecorder_response
     end
 
     properties(Access=private)
-        cache=eprecorder_cache(512,true,5*60*60);
+        cache=eprecorder_cache(20000,true,7*60*60);
     end
 
     properties(Access=public)
@@ -184,7 +184,7 @@ classdef eprecorder_response
             end
 
             % Build the classifier just in time
-            if isempty(this.classifier) || ~strcmp(this.classifier.getDriver(),driver) % TODO: this condition is always true since this.classifier is never saved as this object is not a handle.
+            if isempty(this.classifier) || ~strcmp(this.classifier.getDriver(),driver) % On 23/11/2023: this class was change to a handle class to fix the following =>TODO: [this condition is always true since this.classifier is never saved as this object is not a handle.]
                 path=fileparts(mfilename('fullpath'));
                 path=fullfile(path,'classification');
                 addpath(path);
@@ -196,7 +196,7 @@ classdef eprecorder_response
 
 
             % Get the classification results
-            cache_key=[this.classifier.getDriver() '__' sprintf('%.2g',x) '__' sprintf('%.1f',Fs)];%TODO: this key depends on the length of the signal x, so can be too long.
+            cache_key=[char(this.classifier.getDriver()) '__' sprintf('%.2g',x) '__' sprintf('%.1f',Fs)];%TODO: this key depends on the length of the signal x, so can be too long.
             %this.cache.clearCache()
             cached=this.cache.get(cache_key);
             if ~isempty(cached)
@@ -526,12 +526,7 @@ classdef eprecorder_response
             % [OUTPUT]
             % EPR: The input EPR with updated response auto presence.   
 
-            % If auto detection method is mew_classifier we will redirect.
-            % TODO: reorganise presence detection to avoid this redirection.
-            if strcmp(this.autoPresenceDetectionMethod,'mep_classifier')
-                EPR=this.detectPresenceUsingClassifier(EPR,chan_nums,epoch_nums);
-                return;
-            end
+            
 
             if nargin<3 || isempty(feature_error_scale)
                 feature_error_scale=15;
@@ -544,20 +539,13 @@ classdef eprecorder_response
                 epoch_nums=1:size(EPR.data,3);
             end
 
+            % If auto detection method is mew_classifier we will redirect.
+            % TODO: reorganise presence detection to avoid this redirection.
+            if strcmp(this.autoPresenceDetectionMethod,'mep_classifier')
+                EPR=this.detectPresenceUsingClassifier(EPR,chan_nums,epoch_nums);
+                return;
+            end
             
-            
-            % ____________DELETE THIS COMMENT BLOCK SINCE THE DEPENDENCE ON
-            % PRESTIMULUS DATA CAN BE TURNED OFF NOW USING this.autoPresenceValidationMethod______________________
-            %TODO: The mep detection below uses prestimulus data(refered to
-            %below as baseline) that mep_classifier do not have access to
-            %currently. Will it still be fair to compare the results of the
-            %detector and classifier despite? Perhaps using the qa to
-            %reject back epochs before using mep_classifier will be
-            %equivalent to the use of baseline data for the detector below?
-            %_____________________________________________________________
-
-
-
 
             if any(strcmp({'features_nstd','features_confidence_interval'},this.autoPresenceValidationMethod))
                 % Abitrary time offset to avoid using the data in the vicinity
@@ -1615,6 +1603,87 @@ classdef eprecorder_response
                 end
             end
         end
+        function EPR=copyTimesFromLabel(EPR,chan_nums,epoch_nums,stimulus_nums)
+            % Import manual response start & stop times from label i.e EPR.epochs.features.label. 
+            % [INPUT]
+            % EPR: The EPR data structure.
+            % chan_nums int|array|[]: The channel numbers. The default is
+            %   all channels.
+            % epoch_nums int|array|[]: The epoch numbers. The default is
+            %   all epochs.
+            % stimulus_nums int|array|[]: The stimulus numbers. The default 
+            %   is the number for all stimuli.
+            % [OUTPUT]
+            % EPR struct:The input EPR with response start & stop times.
+            if nargin <2 || isempty(chan_nums)
+                chan_nums=1:length(EPR.channelNames);
+            end
+            if nargin <3 || isempty(epoch_nums)
+                epoch_nums=1:size(EPR.data,3);
+            end
+            if nargin<4
+                stimulus_nums=eprecorder_stimulus_numbers(EPR);
+            end
+
+            
+                
+            for stimulus_num=reshape(stimulus_nums,1,[])
+
+                %
+                for chan=reshape(chan_nums,1,[])
+
+                    for epoch=reshape(epoch_nums,1,[])
+                        onset_time=eprecorder_label.getTime(eprecorder_label.RESPONSE_START,EPR,chan,epoch,stimulus_num);
+                        stop_time=eprecorder_label.getTime(eprecorder_label.RESPONSE_STOP,EPR,chan,epoch,stimulus_num);
+
+
+                        EPR=eprecorder_response.setManualOnsetTime(EPR,chan,epoch,onset_time,stimulus_num);
+                        EPR=eprecorder_response.setManualStopTime(EPR,chan,epoch,stop_time,stimulus_num);
+
+                    end
+                end
+            end
+
+        end
+        function EPR=copyPresenceFromLabel(EPR,chan_nums,epoch_nums,stimulus_nums)
+            % Import manual presence status from label i.e EPR.epochs.features.label.
+            % [INPUT]
+            % EPR: The EPR data structure.
+            % chan_nums int|array|[]: The channel numbers. The default is
+            %   all channels.
+            % epoch_nums int|array|[]: The epoch numbers. The default is
+            %   all epochs.
+            % stimulus_nums int|array|[]: The stimulus numbers. The default 
+            %   is the number for all stimuli.
+            % [OUTPUT]
+            % EPR struct:The input EPR with updated presence.
+            if nargin <2 || isempty(chan_nums)
+                chan_nums=1:length(EPR.channelNames);
+            end
+            if nargin <3 || isempty(epoch_nums)
+                epoch_nums=1:size(EPR.data,3);
+            end
+            if nargin<4
+                stimulus_nums=eprecorder_stimulus_numbers(EPR);
+            end
+
+            
+                
+            for stimulus_num=reshape(stimulus_nums,1,[])
+
+                %
+                for chan=reshape(chan_nums,1,[])
+                    
+                    for epoch=reshape(epoch_nums,1,[])
+                        presence=eprecorder_label.presence(EPR,chan,epoch,stimulus_num);
+                        
+                        EPR=eprecorder_response.setManualPresence(EPR,chan,epoch,presence,stimulus_num);
+
+                    end
+                end
+            end
+
+        end
         function time_widths=getEffectiveTimeWidths(EPR,chan_nums,epoch_nums,stimulus_code,exclude_no_response,exclude_reject,stimulus_num)
             % Get the effective time width of response i.e stop_time-onset_time. 
             % [INPUT]
@@ -1637,6 +1706,8 @@ classdef eprecorder_response
             %   getEffectiveStopTime). Dimension is [nchan_nums x nepoch_nums], 
             %   where when input is [], nepoch_nums is determined using the
             %   stimulus code.
+            
+
             if nargin<4
                 stimulus_code=[];
             end
@@ -2231,8 +2302,8 @@ classdef eprecorder_response
             results.stop_acc=stop_acc;
 
             %% RMSE
-            results.onset_rmse=sqrt(mean((label_onset-detected_onset).^2));
-            results.stop_rmse=sqrt(mean((label_stop-detected_stop).^2));
+            results.onset_rmse=eprecorder_util.rmse(detected_onset,label_onset);
+            results.stop_rmse=eprecorder_util.rmse(detected_stop,label_stop);
 
             %% Table
             % The following are row vectors when length(chan_nums)==1, so
@@ -2281,6 +2352,24 @@ classdef eprecorder_response
             overlapPercentage = (lengthOverlap / min(lengthLine1, lengthLine2));
         end
 
+        function EPR1=merge(EPR1,EPR2)
+            % Merge the response features of the given two datasets.
+            % [INPUT]
+            % EPR1: The target dataset, and source 1.
+            % EPR2: The dataset source 2.
+            % [OUTPUT]
+            % EPR1: The First input dataset with updated response feature.
+        
+            %  Note time_win_start and time_win_end will use what is available in
+            %  the target dataset
+            response_vars={'auto_presence','manual_presence','auto_onset_time','auto_stop_time','manual_onset_time','manual_stop_time','peak2peak','area'};
+            for rv=response_vars
+                fd=rv{1};
+                for k=1:length(EPR1.epochs.features.response.(fd))
+                    EPR1.epochs.features.response.(fd){k}=[EPR1.epochs.features.response.(fd){k} , EPR2.epochs.features.response.(fd){k} ];
+                end
+            end
+        end
     end
 
     

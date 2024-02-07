@@ -50,7 +50,7 @@ function data=eprecorder_get_epoch_data(EPR,chan_num,epoch_num,time_win,rejected
     
     time_win=time_win - epoch_start_time;% Make time_wim relative to epoch start rather that time locking epoch.
 
-    s=eprecorder_time2sample(EPR,time_win/1000); % convert time_win to samples.
+    s=eprecorder_time2sample(EPR,time_win/1000,true); % NOTE: added 'true' to the arguements on 13/12/2023: convert time_win to samples.
     data=EPR.data(chan_num,s(1):s(2),epoch_num);
 
 

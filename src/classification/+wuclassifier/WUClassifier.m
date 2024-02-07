@@ -1,32 +1,29 @@
-classdef UClassifier < mepclassifier.ClassifierContract
+classdef WUClassifier < mepclassifier.ClassifierContract
     %Implements a classifier
     
     properties(Access=protected)
 
         driver;
-        inputShape=[40,1];
+        inputShape=[40,3];
     end
     
 
     methods
-        function this = UClassifier(driver)
+        function this = WUClassifier(driver)
             %Construct an instance of this class
             % [INPUTS]
             % driver string: Unique identifier of the classifier
             
             % load the model
-            %addpath './uclassifier'
-            %c=load('./uclassifier/uclassifier.mat');
-            c=load('uclassifier/uclassifier.mat');
+            c=load('wuclassifier/wuclassifier.mat');
             this.layers=c.layers;
             this.sampleFreq=c.sample_freq;
             this.sanityTestInputs=c.sanity_test_inputs;
             this.sanityTestOutputs=c.sanity_test_outputs;
 
+            this.inputShape=c.input_shape(2:3);%Ensure we have the correct input shape.
 
-            this.inputShape=c.input_shape(2:3);
-
-            this.name='U MEP classifier';
+            this.name='Wavelet U MEP classifier';
 
             this.driver=driver;
         end
@@ -41,6 +38,17 @@ classdef UClassifier < mepclassifier.ClassifierContract
             end
             
             output=this.predictionLoop(dataset);
+        end
+    end
+
+    methods(Access=protected)
+        function dataset=preprocessInput(this,dataset)
+            %run MDT
+
+            compIdx=[3,4];% The components of MDT to add to the dataset.
+
+            comps=eprecorder_util.mdt(dataset);
+            dataset=[dataset,comps(:,compIdx)];
         end
     end
     

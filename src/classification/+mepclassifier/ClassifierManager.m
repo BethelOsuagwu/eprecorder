@@ -23,6 +23,13 @@ classdef ClassifierManager
             %if c.path
             %    addpath(c.path);
             %end
+
+            % Add to path all folders in the classification package root so
+            % that folders of classifiers that are not packages are added
+            % so that their main classes are discoverable.
+            root_path=fileparts(fileparts(mfilename('fullpath')));
+            addpath(genpath(root_path));
+
             c=feval(c.classname,driver);
             if ~isa(c,'mepclassifier.ClassifierContract')
                 c=[];

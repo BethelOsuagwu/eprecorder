@@ -8,6 +8,20 @@
       "driver":"uclassifier",
       "name":"U classifier",
       "classname":"uclassifier.UClassifier"
+   },
+    {
+      "driver":"binaryuclassifier",
+      "name":"BinaryU classifier",
+      "classname":"binaryuclassifier.BinaryUClassifier"
+   },
+   {
+      "driver":"wca",
+      "name":"Wavelet convolutional self attention",
+      "classname":"WCAClassifier"
+   },
+    {
+      "driver":"wuclassifier",
+      "name":"Wavelet convolutional LSTM",
+      "classname":"wuclassifier.WUClassifier"
    }
-
 ]

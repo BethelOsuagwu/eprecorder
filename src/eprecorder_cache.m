@@ -110,7 +110,7 @@ classdef eprecorder_cache < handle
         end
 
          % Clear the entire cache
-        function clearCache(obj)
+        function clear(obj)
             obj.cacheMap = containers.Map;
             obj.accessOrder = [];
             obj.currentSize = 0;

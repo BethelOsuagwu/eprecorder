@@ -4,9 +4,20 @@ classdef (Abstract) ClassifierContract < handle
     properties(Access=protected,Abstract)
         driver; % string: The driver name.
         inputShape; % 1D vector of input dimension without the batch size.
+         
     end
 
     properties(Access=protected)
+        outputCols=3; % Scalar, number of columns in the output where each represents a class.
+        epOutputColIdx=3; % The index of output colunms representing properbilities for output column.
+        
+        % The data sequence used for training the model.
+        % The sequence is causal if the last sample/step of a sequence
+        % provides the label. It is non-causal if the first sample provides
+        % the label. Using the wrong value this property can lead to a
+        % shift in the predicted result.
+        useCausalSquence=false;
+
         name='untitled'; % string: Set the name of the classifier
         layers % cell: Model layers information. Each entry is a structure with keys (weights:cell,config:struct,type:string). @see predictionLoop() for example usage.
         
@@ -28,6 +39,13 @@ classdef (Abstract) ClassifierContract < handle
     end
     
     methods(Access=protected)
+        function dataset=preprocessInput(this,dataset)
+            % Perform preprocessing of the raw input data.
+            % [INPUT]
+            % dataset array: input vector.
+            % [OUTPUT]
+            % dataset array: preprocessed data.
+        end
         function dataset = predictionLoop(this,dataset)  
             % A helper to perform prediction.
             %
@@ -42,7 +60,13 @@ classdef (Abstract) ClassifierContract < handle
                 layer=layer_cell{1};
                 switch(layer.type)
                     case 'Normalization'
-                        dataset=(dataset-layer.config.mean)./sqrt(layer.config.variance);
+                        
+                        %dataset=(dataset-layer.config.mean)./sqrt(layer.config.variance);
+                        for batch=1:size(dataset,1)
+                            for feature=1:size(dataset,3)
+                                dataset(batch,:,feature)= (dataset(batch,:,feature)-layer.config.mean(feature))/sqrt(layer.config.variance(feature));
+                            end
+                        end
                     case 'Conv1D'
                         padding=layer.config.padding;
                         strides=layer.config.strides;
@@ -151,6 +175,7 @@ classdef (Abstract) ClassifierContract < handle
             min_width_samples=min([round(dataSampleFreq*min_width/1000), 1]);
             tolerance=round(dataSampleFreq*discontinuity/1000);
             
+            data=this.preprocessInput(data);
 
             dataset=this.sequence(data);
             preds=this.predict(dataset,dataSampleFreq);
@@ -183,10 +208,23 @@ classdef (Abstract) ClassifierContract < handle
             % Pad data with the last sample to make it divisible by L
             data_padded=[data;repmat(data(end,:),L-mod(num_samples,L),1)];
 
-            % Again pad data with the last sample to increase it by L-1.
-            % This is done to make sure that the first sample of the data
-            % is the first sample of the first sequence.
-            data_padded=[data_padded;repmat(data_padded(end,:),L-1,1)];
+            % Again pad the data but with L-1 samples. This is done to make
+            % sure that the last L+1 samples can be segmented into full L
+            % samples. Whether a left or right padding should be used
+            % depends whether the model sequence is causal.
+            if this.useCausalSquence
+                % Left-pad the data with the first sample in accordance
+                % with causal sequence during training where the last
+                % sample/step of a sequence provides the label. 
+                data_padded=[repmat(data_padded(1,:),L-1,1);data_padded];
+            else
+                % Right-pad data with the last sample to increase it by L-1.
+                % For non-causal sequence, the first sample/step of a
+                % sequence supplies the sequence's label during training.
+                data_padded=[data_padded;repmat(data_padded(end,:),L-1,1)];
+            end
+            
+            
 
             % Initialize dataset
             dataset=zeros(num_samples,L,feature_dim);
@@ -241,13 +279,15 @@ classdef (Abstract) ClassifierContract < handle
                 tolerance=5;
             end
 
+
+            epIdx=this.epOutputColIdx;
             
                      
             start=NaN;
             stop=NaN;
 
             % Find row predicted to be MEP
-            mep_preds=preds(:,3)>threshold;
+            mep_preds=preds(:,epIdx)>threshold;
             
             % Early return if nothing is above threshold.
             if ~any(mep_preds)
@@ -274,7 +314,7 @@ classdef (Abstract) ClassifierContract < handle
             for n=1:size(streaks,1)
                 a=streaks(n,1);
                 b=streaks(n,2);
-                S(n)=mean(preds(a:b,3));
+                S(n)=mean(preds(a:b,epIdx));
             end
 
             % Get the length of the streaks
