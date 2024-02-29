@@ -44,6 +44,7 @@ The package can be installed by copying or cloning the repository. The repositor
 ```bash
 git clone https://github.com/BethelOsuagwu/eprecorder.git
 ```
+Navigate to the cloned directory and add the */src* folder to MATLAB path.
 
 # Usage
 ## Recording
@@ -74,7 +75,7 @@ This will lead to a cvs file, H23.csv in the directory.
 
 ## Typical pre-processing steps
 The following are typical pre-processing steps that can be done on the data. The steps are done using the GUI. The steps can also be done programatically using the MATLAB command line.
-1. Open the dataset you want to preprocess in Continuous Lab. Visually inspect the dataset and filter it if necessary.
+1. Open the dataset you want to preprocess in Continuous Lab. You can open Continuous Lab by typing `eprecorder_continuous_lab` in MATLAB prompt. Visually inspect the dataset and filter it if necessary.
 2. Select the `Trigger` tab on the right side of the app and click on `Create trials`. Keep the default settings and click on `Ok`.
 3. On the resulting window, click on `Open with Epoch Lab`. This will open the dataset in Epoch Lab where for each trial, each channel is plotted in a separate axis. The title of each axis indicate the channel number and name.
 4. In Epoch Lab, select the `QA` tab on the right side of the app. Keep the default settings and click on `Detect noise`. This will detect and reject bad epochs. Rejected epochs are plotted in gray lines.
@@ -137,7 +138,6 @@ Using the GUI, you can plot average response.
 To compute average response programatically, use the following:
 ```MATLAB
 EPR; % An epoched preprocessed dataset
-response=eprecorder_response();
 eprecorder_response.average(EPR);
 ```
 This will plot the average response for the dataset.

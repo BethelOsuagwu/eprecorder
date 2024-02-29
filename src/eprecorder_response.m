@@ -2041,6 +2041,7 @@ classdef eprecorder_response < handle
 
             % Output
             ep=mean(ep,3,'omitnan');
+            t=time_win(1)+eprecorder_sample2time(EPR,1:size(ep,2))*1000;
 
             % Plot
             if nargout<1
